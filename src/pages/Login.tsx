@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Eye, EyeOff, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +19,8 @@ const Login = () => {
     lastName: ''
   });
 
+  const { login, signup, isLoading } = useAuth();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -25,10 +28,29 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Here you would integrate with your authentication system
+    
+    try {
+      if (isSignUp) {
+        if (formData.password !== formData.confirmPassword) {
+          toast.error('Passwords do not match');
+          return;
+        }
+        await signup({
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName
+        });
+        toast.success('Account created successfully!');
+      } else {
+        await login(formData.email, formData.password);
+        toast.success('Welcome back!');
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Authentication failed');
+    }
   };
 
   return (

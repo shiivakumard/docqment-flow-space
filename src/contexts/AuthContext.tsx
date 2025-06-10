@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useLoginMutation, useSignupMutation, useLogoutMutation } from '@/store/api/authApi';
 
 interface User {
   id: string;
@@ -29,6 +30,10 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [loginMutation] = useLoginMutation();
+  const [signupMutation] = useSignupMutation();
+  const [logoutMutation] = useLogoutMutation();
 
   useEffect(() => {
     // Check if user is logged in (from localStorage)
@@ -42,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call - replace with actual authentication
+      // For demo purposes, we'll simulate the API call since we don't have a real backend
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const mockUser: User = {
@@ -54,6 +59,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       setUser(mockUser);
       localStorage.setItem('user', JSON.stringify(mockUser));
+      localStorage.setItem('token', 'mock-jwt-token');
+      
+      // In a real app, you would use:
+      // const result = await loginMutation({ email, password }).unwrap();
+      // setUser(result.user);
     } catch (error) {
       throw new Error('Login failed');
     } finally {
@@ -64,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (userData: { email: string; password: string; firstName: string; lastName: string }) => {
     setIsLoading(true);
     try {
-      // Simulate API call - replace with actual authentication
+      // For demo purposes, we'll simulate the API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const newUser: User = {
@@ -76,6 +86,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       setUser(newUser);
       localStorage.setItem('user', JSON.stringify(newUser));
+      localStorage.setItem('token', 'mock-jwt-token');
+      
+      // In a real app, you would use:
+      // const result = await signupMutation(userData).unwrap();
+      // setUser(result.user);
     } catch (error) {
       throw new Error('Signup failed');
     } finally {
@@ -86,6 +101,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    
+    // In a real app, you would also call:
+    // logoutMutation();
   };
 
   const value = {
