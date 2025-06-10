@@ -1,111 +1,49 @@
 
 import { useState } from 'react';
+import { Upload, FileText, Image, Video, Music, Archive } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { FileCard, FileItem } from '@/components/files/FileCard';
 import { FileUpload } from '@/components/files/FileUpload';
-import { 
-  HardDrive, 
-  Files, 
-  Users, 
-  TrendingUp,
-  Clock,
-  Star
-} from 'lucide-react';
 
 const Dashboard = () => {
-  const [recentFiles] = useState<FileItem[]>([
-    {
-      id: '1',
-      name: 'Project Proposal.pdf',
-      type: 'file',
-      size: 2048000,
-      modifiedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      extension: 'pdf',
-      isStarred: true
-    },
-    {
-      id: '2',
-      name: 'Marketing Assets',
-      type: 'folder',
-      size: 0,
-      modifiedAt: new Date(Date.now() - 5 * 60 * 60 * 1000)
-    },
-    {
-      id: '3',
-      name: 'Team Photo.jpg',
-      type: 'file',
-      size: 5242880,
-      modifiedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      extension: 'jpg'
-    },
-    {
-      id: '4',
-      name: 'Budget Spreadsheet.xlsx',
-      type: 'file',
-      size: 1024000,
-      modifiedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      extension: 'xlsx',
-      isStarred: true
-    }
-  ]);
-
-  const storageStats = {
-    used: 6.5,
-    total: 10,
-    percentage: 65
-  };
+  const [storageUsed] = useState(45); // GB
+  const storageTotal = 100; // GB
+  const storagePercentage = (storageUsed / storageTotal) * 100;
 
   const stats = [
-    {
-      title: 'Total Files',
-      value: '1,234',
-      icon: Files,
-      change: '+12%',
-      changeType: 'positive' as const
-    },
-    {
-      title: 'Storage Used',
-      value: `${storageStats.used} GB`,
-      icon: HardDrive,
-      change: '+2.3 GB',
-      changeType: 'neutral' as const
-    },
-    {
-      title: 'Shared Files',
-      value: '156',
-      icon: Users,
-      change: '+8',
-      changeType: 'positive' as const
-    },
-    {
-      title: 'Activity',
-      value: '89%',
-      icon: TrendingUp,
-      change: '+5%',
-      changeType: 'positive' as const
-    }
+    { name: 'Total Files', value: '1,234', icon: FileText, change: '+12%', changeType: 'positive' },
+    { name: 'Storage Used', value: `${storageUsed}GB`, icon: Archive, change: '+5%', changeType: 'positive' },
+    { name: 'Shared Files', value: '89', icon: Upload, change: '-2%', changeType: 'negative' },
+    { name: 'Recent Activity', value: '23', icon: FileText, change: '+8%', changeType: 'positive' },
+  ];
+
+  const fileTypes = [
+    { name: 'Documents', count: 456, icon: FileText, color: 'bg-blue-500' },
+    { name: 'Images', count: 324, icon: Image, color: 'bg-green-500' },
+    { name: 'Videos', count: 78, icon: Video, color: 'bg-purple-500' },
+    { name: 'Audio', count: 123, icon: Music, color: 'bg-orange-500' },
   ];
 
   return (
     <div className="p-6 space-y-8">
       {/* Welcome Section */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          Welcome back, John!
-        </h1>
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">Welcome back!</h1>
         <p className="text-muted-foreground">
           Here's what's happening with your files today.
         </p>
       </div>
 
+      {/* Quick Upload */}
+      <FileUpload />
+
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index}>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.name}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                {stat.title}
+                {stat.name}
               </CardTitle>
               <stat.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -114,9 +52,7 @@ const Dashboard = () => {
               <p className={`text-xs ${
                 stat.changeType === 'positive' 
                   ? 'text-green-600' 
-                  : stat.changeType === 'negative' 
-                  ? 'text-red-600' 
-                  : 'text-muted-foreground'
+                  : 'text-red-600'
               }`}>
                 {stat.change} from last month
               </p>
@@ -125,125 +61,44 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* File Upload */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Upload</CardTitle>
-              <CardDescription>
-                Drag and drop files here or click to browse
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FileUpload />
-            </CardContent>
-          </Card>
-        </div>
+      {/* Storage Usage */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Storage Usage</CardTitle>
+          <CardDescription>
+            {storageUsed}GB of {storageTotal}GB used
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Progress value={storagePercentage} className="w-full" />
+          <div className="mt-2 text-sm text-muted-foreground">
+            {storageTotal - storageUsed}GB remaining
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Storage Overview */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Storage Overview</CardTitle>
-              <CardDescription>
-                {storageStats.used} GB of {storageStats.total} GB used
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Progress value={storageStats.percentage} className="h-3" />
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Documents</span>
-                  <span>2.1 GB</span>
+      {/* File Type Breakdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle>File Types</CardTitle>
+          <CardDescription>Breakdown of your files by type</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {fileTypes.map((type) => (
+              <div key={type.name} className="flex items-center space-x-3">
+                <div className={`p-2 rounded-md ${type.color}`}>
+                  <type.icon className="h-4 w-4 text-white" />
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Images</span>
-                  <span>3.2 GB</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Videos</span>
-                  <span>1.2 GB</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Other</span>
-                  <span>0.8 GB</span>
+                <div>
+                  <p className="text-sm font-medium">{type.name}</p>
+                  <p className="text-sm text-muted-foreground">{type.count} files</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Recent Files */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-xl font-semibold">Recent Files</h2>
+            ))}
           </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {recentFiles.map(file => (
-            <FileCard
-              key={file.id}
-              file={file}
-              viewMode="grid"
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5" />
-              Starred Files
-            </CardTitle>
-            <CardDescription>
-              Your most important files
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {recentFiles.filter(f => f.isStarred).map(file => (
-                <div key={file.id} className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg transition-colors">
-                  <Files className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm truncate">{file.name}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Common tasks and shortcuts
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <button className="w-full text-left p-3 hover:bg-accent rounded-lg transition-colors">
-              <div className="font-medium">Create New Folder</div>
-              <div className="text-sm text-muted-foreground">Organize your files</div>
-            </button>
-            <button className="w-full text-left p-3 hover:bg-accent rounded-lg transition-colors">
-              <div className="font-medium">Share Files</div>
-              <div className="text-sm text-muted-foreground">Collaborate with others</div>
-            </button>
-            <button className="w-full text-left p-3 hover:bg-accent rounded-lg transition-colors">
-              <div className="font-medium">Sync Settings</div>
-              <div className="text-sm text-muted-foreground">Manage synchronization</div>
-            </button>
-          </CardContent>
-        </Card>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
