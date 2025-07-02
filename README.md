@@ -1,4 +1,4 @@
-# Welcome to your document project
+# Welcome to document project
 
 ## Project info
 
